@@ -12,6 +12,16 @@
       line: "PermitRootLogin {{ security_ssh_permit_root_login }}"
     - regexp: "^Port"
       line: "Port {{ security_ssh_port }}"
+    - regexp: "^UseDNS"
+      line: "UseDNS {{ security_ssh_usedns }}"
+    - regexp: "^PermitEmptyPasswords"
+      line: "PermitEmptyPasswords {{ security_ssh_permit_empty_password }}"
+    - regexp: "^ChallengeResponseAuthentication"
+      line: "ChallengeResponseAuthentication {{ security_ssh_challenge_response_auth }}"
+    - regexp: "^GSSAPIAuthentication"
+      line: "GSSAPIAuthentication {{ security_ssh_gss_api_authentication }}"
+    - regexp: "^X11Forwarding"
+      line: "X11Forwarding {{ security_ssh_x11_forwarding }}"
   notify: restart ssh
 
 - name: Add configured user accounts to passwordless sudoers.
@@ -21,7 +31,7 @@
     line: '{{ item }} ALL=(ALL) NOPASSWD: ALL'
     state: present
     validate: 'visudo -cf %s'
-  with_items: security_sudoers_passwordless
+  with_items: "{{ security_sudoers_passwordless }}"
   when: security_sudoers_passwordless | length > 0
 
 - name: Add configured user accounts to passworded sudoers.
@@ -31,5 +41,5 @@
     line: '{{ item }} ALL=(ALL) ALL'
     state: present
     validate: 'visudo -cf %s'
-  with_items: security_sudoers_passworded
+  with_items: "{{ security_sudoers_passworded }}"
   when: security_sudoers_passworded | length > 0
